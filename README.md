@@ -1,4 +1,4 @@
-# custom-data-type-getty
+# easydb-custom-data-type-getty
 
 This is a plugin for [easyDB 5](http://5.easydb.de/) with Custom Data Type `CustomDataTypeGetty` for references to entities of the [Getty Vocabularys](http://vocab.getty.edu/).
 

@@ -2,7 +2,7 @@
 
 This is a plugin for [easyDB 5](http://5.easydb.de/) with Custom Data Type `CustomDataTypeGetty` for references to entities of the [Getty Vocabularys](http://vocab.getty.edu/).
 
-The Plugins uses <http://ws.gbv.de/suggest/getty/> for the autocomplete-suggestions.
+The Plugins uses <http://ws.gbv.de/suggest/getty/> for the autocomplete-suggestions. <http://ws.gbv.de/suggest/getty/> communicates live with getty's sparql-endpoint.
 
 ## configuration
 

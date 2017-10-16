@@ -110,7 +110,7 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
           htmlContent += "<tr><td>Synonyme:</td><td>" + variantNames + "</td></tr>"
 
       htmlContent += "</table>"
-      tooltip.DOM.html(htmlContent);
+      tooltip.DOM.innerHTML = htmlContent
       tooltip.autoSize()
     )
     .fail (data, status, statusText) ->
@@ -276,7 +276,7 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
           )
         ]
     [{
-      type: Select
+      type: CUI.Select
       undo_and_changed_support: false
       form:
           label: $$('custom.data.type.getty.modal.form.text.type')
@@ -285,7 +285,7 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
       class: 'commonPlugin_Select'
     }
     {
-      type: Select
+      type: CUI.Select
       undo_and_changed_support: false
       class: 'commonPlugin_Select'
       form:
@@ -311,7 +311,7 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
       name: 'countOfSuggestions'
     }
     {
-      type: Input
+      type: CUI.Input
       undo_and_changed_support: false
       form:
           label: $$("custom.data.type.getty.modal.form.text.searchbar")
@@ -322,16 +322,16 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
     {
       form:
         label: "Gewählter Eintrag"
-      type: Output
+      type: CUI.Output
       name: "conceptName"
       data: {conceptName: cdata.conceptName}
     }
     {
       form:
         label: "Verknüpfte URI"
-      type: FormButton
+      type: CUI.FormButton
       name: "conceptURI"
-      icon: new Icon(class: "fa-lightbulb-o")
+      icon: new CUI.Icon(class: "fa-lightbulb-o")
       text: cdata.conceptURI
       onClick: (evt,button) =>
         window.open cdata.conceptURI, "_blank"
@@ -350,9 +350,9 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
 
     switch @getDataStatus(cdata)
       when "empty"
-        return new EmptyLabel(text: $$("custom.data.type.getty.edit.no_getty")).DOM
+        return new CUI.EmptyLabel(text: $$("custom.data.type.getty.edit.no_getty")).DOM
       when "invalid"
-        return new EmptyLabel(text: $$("custom.data.type.getty.edit.no_valid_getty")).DOM
+        return new CUI.EmptyLabel(text: $$("custom.data.type.getty.edit.no_valid_getty")).DOM
 
     # if status is ok
     conceptURI = CUI.parseLocation(cdata.conceptURI).url
@@ -362,7 +362,7 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
     tt_text = $$("custom.data.type.getty.url.tooltip", name: cdata.conceptName)
 
     # output Button with Name of picked Entry and Url to the Source
-    new ButtonHref
+    new CUI.ButtonHref
       appearance: "link"
       href: cdata.conceptURI
       target: "_blank"

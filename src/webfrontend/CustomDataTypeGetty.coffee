@@ -114,7 +114,7 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
       tooltip.autoSize()
     )
     .fail (data, status, statusText) ->
-        CUI.debug 'FAIL', extendedInfo_xhr.getXHR(), extendedInfo_xhr.getResponseHeaders()
+        console.debug 'FAIL', extendedInfo_xhr.getXHR(), extendedInfo_xhr.getResponseHeaders()
 
     return
 
@@ -155,7 +155,7 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
       searchsuggest_xhr.xhr = new (CUI.XHR)(url: location.protocol + '//ws.gbv.de/suggest/getty/?searchstring=' + getty_searchterm + '&voc=' + getty_searchtype + '&count=' + getty_countSuggestions)
       searchsuggest_xhr.xhr.start().done((data, status, statusText) ->
 
-          CUI.debug 'OK', searchsuggest_xhr.xhr.getXHR(), searchsuggest_xhr.xhr.getResponseHeaders()
+          console.debug 'OK', searchsuggest_xhr.xhr.getXHR(), searchsuggest_xhr.xhr.getResponseHeaders()
           # init xhr for tooltipcontent
           extendedInfo_xhr = { "xhr" : undefined }
           # create new menu with suggestions

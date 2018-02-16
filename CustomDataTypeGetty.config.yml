@@ -1,5 +1,5 @@
 plugin:
-  name: custom-data-type-getty
+  name: easydb-custom-data-type-getty
   version: 1.0
   server:
     api-version:

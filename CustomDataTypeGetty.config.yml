@@ -11,6 +11,9 @@ plugin:
   server:
     api-version:
       require: 1
+  scss:
+      body:
+        - build/webfrontend/custom-data-type-getty.scss
   webfrontend:
     url: custom-data-type-getty.js
     l10n: l10n/

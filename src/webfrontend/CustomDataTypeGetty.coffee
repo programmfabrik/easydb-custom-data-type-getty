@@ -359,9 +359,14 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
     tt_text = $$("custom.data.type.getty.url.tooltip", name: cdata.conceptName)
 
     # output Button with Name of picked Entry and Url to the Source
+
+    # replace conceptUri with better human-readable website
+    # http://vocab.getty.edu/aat/300386183 turns http://vocab.getty.edu/page/aat/300386183
+    displayUri = cdata.conceptURI.replace('http://vocab.getty.edu', 'http://vocab.getty.edu/page')
+
     new CUI.ButtonHref
       appearance: "link"
-      href: cdata.conceptURI
+      href: displayUri
       target: "_blank"
       tooltip:
         markdown: true

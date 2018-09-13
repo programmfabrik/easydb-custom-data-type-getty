@@ -13,18 +13,18 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
 
 
   #######################################################################
-  # if type is DifferentiatedPerson or CorporateBody, get short info about entry from entityfacts
+  # NOT IMPLEMENTED YET!
   __getAdditionalTooltipInfo: (uri, tooltip, extendedInfo_xhr) ->
-    # extract gndID from uri
-    gndID = uri
-    gndID = gndID.split "/"
-    gndID = gndID.pop()
+    tooltip.hide()
+    tooltip.destroy()
+    return false
+
     # download infos
     if extendedInfo_xhr.xhr != undefined
       # abort eventually running request
       extendedInfo_xhr.abort()
     # start new request
-    xurl = location.protocol + '//jsontojsonp.gbv.de/?url=http://hub.culturegraph.org/entityfacts/' + gndID
+    xurl = location.protocol + '//jsontojsonp.gbv.de/?url=' + uri
     extendedInfo_xhr = new (CUI.XHR)(url: xurl)
     extendedInfo_xhr.start()
     .done((data, status, statusText) ->
@@ -35,79 +35,7 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
       # DifferentiatedPerson and CorporateBody
 
       # Vollständiger Name (DifferentiatedPerson + CorporateBody)
-      htmlContent += "<tr><td>Name:</td><td>" + data.preferredName + "</td></tr>"
-      # Abbildung (DifferentiatedPerson + CorporateBody)
-      depiction = data.depiction
-      if depiction
-        if depiction.thumbnail
-          htmlContent += '<tr><td>Abbildung:</td><td><img src="' + depiction.thumbnail['@id'] + '" style="border: 0; max.width:120px; max-height:150px;" /></td></tr>'
-      # Lebensdaten (DifferentiatedPerson)
-      dateOfBirth = data.dateOfBirth
-      dateOfDeath = data.dateOfDeath
-      if dateOfBirth or dateOfDeath
-        htmlContent += "<tr><td>Lebensdaten:</td><td>"
-        if dateOfBirth and dateOfDeath
-          htmlContent += dateOfBirth + " bis " + dateOfDeath
-        else if dateOfBirth and !dateOfDeath
-          htmlContent += dateOfBirth + " bis unbekannt"
-        else if !dateOfBirth and dateOfDeath
-          htmlContent += "unbekannt bis " + dateOfDeath
-        htmlContent += "</td></tr>"
-      # Date of Establishment (CorporateBody)
-      dateOfEstablishment = data.dateOfEstablishment
-      if dateOfEstablishment
-        htmlContent += "<tr><td>Gründung:</td><td>" + dateOfEstablishment[0] + "</td></tr>"
-      # Place of Business (CorporateBody)
-      placeOfBusiness = data.placeOfBusiness
-      places = []
-      if placeOfBusiness
-        if placeOfBusiness.length > 0
-          for place in placeOfBusiness
-            places.push(place.preferredName)
-          htmlContent += "<tr><td>Niederlassung(en):</td><td>" + places.join("<br />") + "</td></tr>"
-      # Übergeordnete Körperschaft (CorporateBody)
-      hierarchicallySuperiorOrganisation = data.hierarchicallySuperiorOrganisation
-      organisations = []
-      if hierarchicallySuperiorOrganisation
-        if hierarchicallySuperiorOrganisation.length > 0
-          for organisation in hierarchicallySuperiorOrganisation
-            organisations.push(organisation.preferredName)
-          htmlContent += "<tr><td>Übergeordnete Körperschaft(en):</td><td>" + organisations.join("<br />") + "</td></tr>"
-      # Geburtsort (DifferentiatedPerson)
-      placeOfBirth = data.placeOfBirth
-      if placeOfBirth
-        htmlContent += "<tr><td>Geburtsort:</td><td>" + placeOfBirth[0].preferredName + "</td></tr>"
-      # Sterbeort (DifferentiatedPerson)
-      placeOfDeath = data.placeOfDeath
-      if placeOfDeath
-        htmlContent += "<tr><td>Sterbeort:</td><td>" + placeOfDeath[0].preferredName + "</td></tr>"
-      # Berufe (DifferentiatedPerson)
-      professionOrOccupation = data.professionOrOccupation
-      professions = []
-      if professionOrOccupation
-        if professionOrOccupation.length > 0
-          for profession in professionOrOccupation
-            professions.push(profession.preferredName)
-          htmlContent += "<tr><td>Beruf(e):</td><td>" + professions.join("<br />") + "</td></tr>"
-      # Biographie (DifferentiatedPerson)
-      biographicalOrHistoricalInformation = data.biographicalOrHistoricalInformation
-      if biographicalOrHistoricalInformation
-        htmlContent += "<tr><td>Biographie:</td><td>" + biographicalOrHistoricalInformation + "</td></tr>"
-      # Thema (CorporateBody)
-      topic = data.topic
-      topics = []
-      if topic
-        if topic.length > 0
-          for t in topic
-            topics.push(t.preferredName)
-          htmlContent += "<tr><td>Themen:</td><td>" + topics.join("<br />") + "</td></tr>"
-
-      # Synonyme (DifferentiatedPerson + CorporateBody)
-      variantName = data.variantName
-      if variantName
-        if variantName.length > 0
-          variantNames = variantName.join("<br />")
-          htmlContent += "<tr><td>Synonyme:</td><td>" + variantNames + "</td></tr>"
+      #htmlContent += "<tr><td>Name:</td><td>" + data.preferredName + "</td></tr>"
 
       htmlContent += "</table>"
       tooltip.DOM.innerHTML = htmlContent
@@ -119,17 +47,22 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
 
   #######################################################################
   # handle suggestions-menu
-  __updateSuggestionsMenu: (cdata, cdata_form, suggest_Menu, searchsuggest_xhr) ->
+  __updateSuggestionsMenu: (cdata, cdata_form, searchstring, input, suggest_Menu, searchsuggest_xhr, layout) ->
     that = @
 
     delayMillisseconds = 200
 
     setTimeout ( ->
-      getty_searchterm = cdata_form.getFieldsByName("searchbarInput")[0].getValue()
+      getty_searchterm = searchstring
+      getty_countSuggestions = 20
 
-      getty_searchtype = cdata_form.getFieldsByName("gettySelectType")[0].getValue()
+      if (cdata_form)
+        getty_searchterm = cdata_form.getFieldsByName("searchbarInput")[0].getValue()
+        getty_searchtype = cdata_form.getFieldsByName("gettySelectType")[0].getValue()
+        getty_countSuggestions = cdata_form.getFieldsByName("countOfSuggestions")[0].getValue()
+
       # if "search-all-types", search all allowed types
-      if getty_searchtype == 'all_supported_types'
+      if getty_searchtype == 'all_supported_types' || !getty_searchtype
         getty_searchtype = []
         if that.getCustomSchemaSettings().add_aat?.value
           getty_searchtype.push 'aat'
@@ -138,8 +71,6 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
         if that.getCustomSchemaSettings().add_ulan?.value
           getty_searchtype.push 'ulan'
         getty_searchtype = getty_searchtype.join(',')
-
-      getty_countSuggestions = cdata_form.getFieldsByName("countOfSuggestions")[0].getValue()
 
       if getty_searchterm.length == 0
           return
@@ -195,16 +126,13 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
               # lock in save data
               cdata.conceptURI = btn.getOpt("value")
               cdata.conceptName = btn.getText()
-              # lock in form
-              cdata_form.getFieldsByName("conceptName")[0].storeValue(cdata.conceptName).displayValue()
-              # nach eadb5-Update durch "setText" ersetzen und "__checkbox" rausnehmen
-              cdata_form.getFieldsByName("conceptURI")[0].__checkbox.setText(cdata.conceptURI)
-              cdata_form.getFieldsByName("conceptURI")[0].show()
-
-              # clear searchbar
-              cdata_form.getFieldsByName("searchbarInput")[0].setValue('')
+              # update the layout in form
+              that.__updateResult(cdata, layout)
               # hide suggest-menu
               suggest_Menu.hide()
+              # close popover
+              if that.popover
+                that.popover.hide()
               @
             items: menu_items
 
@@ -316,26 +244,6 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
       name: "searchbarInput"
       class: 'commonPlugin_Input'
     }
-    {
-      form:
-        label: "Gewählter Eintrag"
-      type: CUI.Output
-      name: "conceptName"
-      data: {conceptName: cdata.conceptName}
-    }
-    {
-      form:
-        label: "Verknüpfte URI"
-      type: CUI.FormButton
-      name: "conceptURI"
-      icon: new CUI.Icon(class: "fa-lightbulb-o")
-      text: cdata.conceptURI
-      onClick: (evt,button) =>
-        window.open cdata.conceptURI, "_blank"
-      onRender : (_this) =>
-        if cdata.conceptURI == ''
-          _this.hide()
-    }
     ]
 
 
@@ -354,24 +262,32 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
     # if status is ok
     conceptURI = CUI.parseLocation(cdata.conceptURI).url
 
-    # if conceptURI .... ... patch abwarten
-
     tt_text = $$("custom.data.type.getty.url.tooltip", name: cdata.conceptName)
-
-    # output Button with Name of picked Entry and Url to the Source
 
     # replace conceptUri with better human-readable website
     # http://vocab.getty.edu/aat/300386183 turns http://vocab.getty.edu/page/aat/300386183
     displayUri = cdata.conceptURI.replace('http://vocab.getty.edu', 'http://vocab.getty.edu/page')
 
-    new CUI.ButtonHref
-      appearance: "link"
-      href: displayUri
-      target: "_blank"
-      tooltip:
-        markdown: true
-        text: tt_text
-      text: cdata.conceptName
+    # output Button with Name of picked Entry and URI
+    encodedURI = encodeURIComponent(displayUri)
+    new CUI.HorizontalLayout
+      maximize: true
+      left:
+        content:
+          new CUI.Label
+            centered: true
+            text: cdata.conceptName
+      center:
+        content:
+          # output Button with Name of picked Entry and Url to the Source
+          new CUI.ButtonHref
+            appearance: "link"
+            href: displayUri
+            target: "_blank"
+            tooltip:
+              markdown: true
+              text: tt_text
+      right: null
     .DOM
 
 
@@ -380,8 +296,6 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
   # zeige die gewählten Optionen im Datenmodell unter dem Button an
   getCustomDataOptionsInDatamodelInfo: (custom_settings) ->
     tags = []
-
-    console.log custom_settings
 
     if custom_settings.add_aat?.value
       tags.push "✓ AAT"

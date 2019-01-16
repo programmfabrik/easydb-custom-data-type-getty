@@ -47,7 +47,7 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
 
   #######################################################################
   # handle suggestions-menu
-  __updateSuggestionsMenu: (cdata, cdata_form, searchstring, input, suggest_Menu, searchsuggest_xhr, layout) ->
+  __updateSuggestionsMenu: (cdata, cdata_form, searchstring, input, suggest_Menu, searchsuggest_xhr, layout, opts) ->
     that = @
 
     delayMillisseconds = 200
@@ -127,7 +127,7 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
               cdata.conceptURI = btn.getOpt("value")
               cdata.conceptName = btn.getText()
               # update the layout in form
-              that.__updateResult(cdata, layout)
+              that.__updateResult(cdata, layout, opts)
               # hide suggest-menu
               suggest_Menu.hide()
               # close popover

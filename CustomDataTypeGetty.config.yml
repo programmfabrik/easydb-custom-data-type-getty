@@ -37,7 +37,3 @@ custom_types:
             value:
               type: bool
       mask:
-        - name: show_infopopup
-          parameters:
-            value:
-              type: bool

@@ -19,8 +19,8 @@ custom.data.type.getty.modal.form.text.uri.label.placeholder,noch leer,empty,,
 custom.data.type.getty.modal.form.url.placeholder,Getty-Verknüpfung,Getty-node,,
 custom.data.type.getty.name,Getty-Verknüpfung,Getty-node,,
 custom.data.type.getty.config.parameter.mask.editor_style,Editor-Stil,Editor style,,
-custom.data.type.getty.config.parameter.mask.show_infopopup.value.label,Infopopup,Infopopup,,
-custom.data.type.getty.config.parameter.mask.show_infopopup.value.checkbox,"Zeige, wenn möglich, erweiterte Getty-Informationen. Diese werden zur Ansicht geladen, sobald die Maus über einen Eintrag in der Vorschlagsliste bewegt wird.","If available, extended Getty-information will be displayed by moving the mouse on a suggestion.",,
+custom.data.type.getty.config.parameter.mask.infopop.info.label,Informationen über den Datensatz,Informations about the record
+custom.data.type.getty.config.parameter.mask.infopop.labels.label,Namensformen,Labels
 custom.data.type.getty.config.parameter.schema.add_aat.value.label,Durchsuche,Search,,
 custom.data.type.getty.config.parameter.schema.add_tgn.value.label,Durchsuche,Search,,
 custom.data.type.getty.config.parameter.schema.add_ulan.value.label,Durchsuche,Search,,

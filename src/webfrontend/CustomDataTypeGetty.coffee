@@ -15,31 +15,48 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
   #######################################################################
   # NOT IMPLEMENTED YET!
   __getAdditionalTooltipInfo: (uri, tooltip, extendedInfo_xhr) ->
-    tooltip.hide()
-    tooltip.destroy()
-    return false
-
     # download infos
     if extendedInfo_xhr.xhr != undefined
       # abort eventually running request
       extendedInfo_xhr.abort()
+
+    uriParts = uri.split('/')
+    gettyID = uriParts.pop()
+    gettyType = uriParts.pop()
+
+    uri = 'http://vocab.getty.edu/' + gettyType + '/' + gettyID + '.json'
+
     # start new request
     xurl = location.protocol + '//jsontojsonp.gbv.de/?url=' + uri
     extendedInfo_xhr = new (CUI.XHR)(url: xurl)
     extendedInfo_xhr.start()
     .done((data, status, statusText) ->
-      htmlContent = ''
-      htmlContent += '<table style="border-spacing: 10px; border-collapse: separate;">'
-      htmlContent += '<tr><td colspan="2"><h4>Informationen über den Eintrag</h4></td></tr>'
-      ##########################
-      # DifferentiatedPerson and CorporateBody
+      if data.results
+        htmlContent = '<span style="padding: 10px 10px 0px 10px; font-weight: bold">' + $$('custom.data.type.getty.config.parameter.mask.infopop.info.label') + '</span>'
+        htmlContent += '<table style="border-spacing: 10px; border-collapse: separate;">'
 
-      # Vollständiger Name (DifferentiatedPerson + CorporateBody)
-      #htmlContent += "<tr><td>Name:</td><td>" + data.preferredName + "</td></tr>"
+        # list all labels
+        htmlContent += "<tr><td>" + $$('custom.data.type.getty.config.parameter.mask.infopop.labels.label') + ":</td>"
+        bindings = data.results.bindings
 
-      htmlContent += "</table>"
-      tooltip.DOM.innerHTML = htmlContent
-      tooltip.autoSize()
+        labels = []
+        for binding, key in bindings
+          if binding.Predicate.type == 'uri' && binding.Predicate.value == 'http://www.w3.org/2000/01/rdf-schema#label'
+            labels.push('- ' + binding.Object.value)
+
+        htmlContent += "<td>" + labels.join('<br />') + "</td></tr>"
+        htmlContent += "</table>"
+        tooltip.DOM.innerHTML = htmlContent
+        tooltip.autoSize()
+      else
+        tooltip.hide()
+        tooltip.destroy()
+        return false
+    )
+    .fail((data, status, statusText) ->
+      tooltip.hide()
+      tooltip.destroy()
+      return false
     )
 
     return
@@ -112,12 +129,8 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
                   markdown: true
                   placement: "e"
                   content: (tooltip) ->
-                    # if enabled in mask-config
-                    if that.getCustomMaskSettings().show_infopopup?.value
-                      # if type is ready for infopopup
-                      if aktType == "DifferentiatedPerson" or aktType == "CorporateBody"
-                        that.__getAdditionalTooltipInfo(data[3][key], tooltip, extendedInfo_xhr)
-                        new Label(icon: "spinner", text: "lade Informationen")
+                    that.__getAdditionalTooltipInfo(data[3][key], tooltip, extendedInfo_xhr)
+                    new CUI.Label(icon: "spinner", text: "lade Informationen")
               menu_items.push item
 
           # set new items to menu
@@ -126,14 +139,39 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
               # lock in save data
               cdata.conceptURI = btn.getOpt("value")
               cdata.conceptName = btn.getText()
-              # update the layout in form
-              that.__updateResult(cdata, layout, opts)
-              # hide suggest-menu
-              suggest_Menu.hide()
-              # close popover
-              if that.popover
-                that.popover.hide()
-              @
+              cdata.conceptFulltext = cdata.conceptName
+              # try to get better fulltext
+              encodedURL = encodeURIComponent(cdata.conceptURI + '.json')
+              dataEntry_xhr = new (CUI.XHR)(url: location.protocol + '//jsontojsonp.gbv.de/?url=' + encodedURL)
+              dataEntry_xhr.start().done((data, status, statusText) ->
+                # generate fulltext from data
+                if data.results
+                  bindings = data.results.bindings
+
+                  # add labels to fulltext
+                  labels = []
+                  for binding, key in bindings
+                    if binding.Predicate.type == 'uri' && binding.Predicate.value == 'http://www.w3.org/2000/01/rdf-schema#label'
+                      labels.push(binding.Object.value)
+                  cdata.conceptFulltext = labels.join(' ')
+
+                  # update the layout in form
+                  that.__updateResult(cdata, layout, opts)
+                  # hide suggest-menu
+                  suggest_Menu.hide()
+                  # close popover
+                  if that.popover
+                    that.popover.hide()
+              )
+              .fail((data, status, statusText) ->
+                # update the layout in form
+                that.__updateResult(cdata, layout, opts)
+                # hide suggest-menu
+                suggest_Menu.hide()
+                # close popover
+                if that.popover
+                  that.popover.hide()
+              )
             items: menu_items
 
           # if no hits set "empty" message to menu

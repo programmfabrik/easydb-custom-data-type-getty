@@ -1,4 +1,5 @@
 PLUGIN_NAME = custom-data-type-getty
+PLUGIN_PATH = easydb-custom-data-type-getty
 
 L10N_FILES = easydb-library/src/commons.l10n.csv \
     l10n/$(PLUGIN_NAME).csv

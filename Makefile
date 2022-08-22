@@ -1,10 +1,10 @@
 PLUGIN_NAME = custom-data-type-getty
+PLUGIN_PATH = easydb-custom-data-type-getty
 
 L10N_FILES = easydb-library/src/commons.l10n.csv \
     l10n/$(PLUGIN_NAME).csv
 L10N_GOOGLE_KEY = 1ux8r_kpskdAwTaTjqrk92up5eyyILkpsv4k96QltmI0
 L10N_GOOGLE_GID = 1782322607
-L10N2JSON = python easydb-library/tools/l10n2json.py
 
 INSTALL_FILES = \
     $(WEB)/l10n/cultures.json \
@@ -12,7 +12,7 @@ INSTALL_FILES = \
     $(WEB)/l10n/en-US.json \
     $(JS) \
     $(CSS) \
-    CustomDataTypeGetty.config.yml
+    manifest.yml
 
 COFFEE_FILES = easydb-library/src/commons.coffee \
     src/webfrontend/CustomDataTypeGetty.coffee
@@ -23,7 +23,7 @@ all: build
 
 include easydb-library/tools/base-plugins.make
 
-build: code css
+build: code css buildinfojson
 
 code: $(JS) $(L10N)
 

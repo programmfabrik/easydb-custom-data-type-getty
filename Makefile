@@ -3,8 +3,6 @@ PLUGIN_PATH = easydb-custom-data-type-getty
 
 L10N_FILES = easydb-library/src/commons.l10n.csv \
     l10n/$(PLUGIN_NAME).csv
-L10N_GOOGLE_KEY = 1ux8r_kpskdAwTaTjqrk92up5eyyILkpsv4k96QltmI0
-L10N_GOOGLE_GID = 1782322607
 
 INSTALL_FILES = \
     $(WEB)/l10n/cultures.json \
@@ -15,16 +13,18 @@ INSTALL_FILES = \
     manifest.yml
 
 COFFEE_FILES = easydb-library/src/commons.coffee \
-    src/webfrontend/CustomDataTypeGetty.coffee
+    src/webfrontend/CustomDataTypeGetty.coffee \
+		src/webfrontend/GettyUtil.coffee
 
-SCSS_FILES = src/webfrontend/scss/main.scss
+CSS_FILE = src/webfrontend/css/main.css
 
 all: build
 
 include easydb-library/tools/base-plugins.make
 
-build: code css buildinfojson
+build: code buildinfojson
 
 code: $(JS) $(L10N)
+	    cat $(CSS_FILE) >> build/webfrontend/custom-data-type-getty.css
 
 clean: clean-base

@@ -11,10 +11,23 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
   getCustomDataTypeNameLocalized: ->
     $$("custom.data.type.getty.name")
 
+  #######################################################################
+  # get frontend-language
+  getFrontendLanguage: () ->
+    # language
+    desiredLanguage = ez5?.loca?.getLanguage()
+    if desiredLanguage
+      desiredLanguage = desiredLanguage.split('-')
+      desiredLanguage = desiredLanguage[0]
+    else
+      desiredLanguage = false
+
+    desiredLanguage
 
   #######################################################################
-  # NOT IMPLEMENTED YET!
+  # get more info about record
   __getAdditionalTooltipInfo: (uri, tooltip, extendedInfo_xhr) ->
+    that = @
     # download infos
     if extendedInfo_xhr.xhr != undefined
       # abort eventually running request
@@ -31,20 +44,49 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
     extendedInfo_xhr = new (CUI.XHR)(url: xurl)
     extendedInfo_xhr.start()
     .done((data, status, statusText) ->
-      if data.results
+      if data
         htmlContent = '<span style="padding: 10px 10px 0px 10px; font-weight: bold">' + $$('custom.data.type.getty.config.parameter.mask.infopop.info.label') + '</span>'
         htmlContent += '<table style="border-spacing: 10px; border-collapse: separate;">'
 
-        # list all labels
+        # uri
+        htmlContent += "<tr><td>" + $$('custom.data.type.getty.config.parameter.mask.infopop.labels.uri') + ":</td>"
+        htmlContent += "<td>" + data.id + "</td></tr>"
+
+        # preflabel
+        htmlContent += "<tr><td>" + $$('custom.data.type.getty.config.parameter.mask.infopop.labels.preflabel') + ":</td>"
+        htmlContent += "<td>" + data._label + "</td></tr>"
+
+        # broader
+        if data?.broader
+          htmlContent += "<tr><td>" + $$('custom.data.type.getty.config.parameter.mask.infopop.labels.broader') + ":</td>"
+          broaderString = data.broader[0]._label['@value'];
+          broaderString = broaderString.replace('<', '')
+          broaderString = broaderString.replace('>', '')
+          htmlContent += "<td>" + broaderString + "</td></tr>"
+
+        # labels
         htmlContent += "<tr><td>" + $$('custom.data.type.getty.config.parameter.mask.infopop.labels.label') + ":</td>"
-        bindings = data.results.bindings
-
         labels = []
-        for binding, key in bindings
-          if binding.Predicate.type == 'uri' && binding.Predicate.value == 'http://www.w3.org/2000/01/rdf-schema#label'
-            labels.push('- ' + binding.Object.value)
-
+        if data.identified_by
+          for altInfo in data.identified_by
+            if (altInfo.type == 'Name')
+              labels.push('- ' + altInfo.content)
         htmlContent += "<td>" + labels.join('<br />') + "</td></tr>"
+
+        # note
+        notes = []
+        if data.subject_of
+          for info in data.subject_of
+            if info?.classified_as
+              if info.classified_as[0]._label == 'descriptive note'
+                language = info.language[0]._label
+                if that.getFrontendLanguage() == language || language == 'en'
+                  notes.push info.content
+
+        if notes.length > 0
+          htmlContent += "<tr><td>" + $$('custom.data.type.getty.config.parameter.mask.infopop.labels.note') + ":</td>"
+          htmlContent += "<td>" + notes.join('<br />') + "</td></tr>"
+
         htmlContent += "</table>"
         tooltip.DOM.innerHTML = htmlContent
         tooltip.autoSize()
@@ -139,29 +181,23 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
               # lock in save data
               cdata.conceptURI = btn.getOpt("value")
               cdata.conceptName = btn.getText()
-              cdata.conceptFulltext = cdata.conceptName
+
               # try to get better fulltext
               encodedURL = encodeURIComponent(cdata.conceptURI + '.json')
               dataEntry_xhr = new (CUI.XHR)(url: location.protocol + '//jsontojsonp.gbv.de/?url=' + encodedURL)
               dataEntry_xhr.start().done((data, status, statusText) ->
-                # generate fulltext from data
-                if data.results
-                  bindings = data.results.bindings
 
-                  # add labels to fulltext
-                  labels = []
-                  for binding, key in bindings
-                    if binding.Predicate.type == 'uri' && binding.Predicate.value == 'http://www.w3.org/2000/01/rdf-schema#label'
-                      labels.push(binding.Object.value)
-                  cdata.conceptFulltext = labels.join(' ')
+                # _standard & _fulltext
+                cdata._fulltext = ez5.GettyUtil.getFullTextFromGettyJSON data, false
+                cdata._standard = ez5.GettyUtil.getStandardFromGettyJSON that, data, cdata, false
 
-                  # update the layout in form
-                  that.__updateResult(cdata, layout, opts)
-                  # hide suggest-menu
-                  suggest_Menu.hide()
-                  # close popover
-                  if that.popover
-                    that.popover.hide()
+                # update the layout in form
+                that.__updateResult(cdata, layout, opts)
+                # hide suggest-menu
+                suggest_Menu.hide()
+                # close popover
+                if that.popover
+                  that.popover.hide()
               )
               .fail((data, status, statusText) ->
                 # update the layout in form

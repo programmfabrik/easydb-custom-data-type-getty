@@ -19,8 +19,8 @@ custom.data.type.getty.modal.form.text.uri.label.placeholder,noch leer,empty,,
 custom.data.type.getty.modal.form.url.placeholder,Getty-Verknüpfung,Getty-node,,
 custom.data.type.getty.name,Getty-Verknüpfung,Getty-node,,
 custom.data.type.getty.config.parameter.mask.editor_style,Editor-Stil,Editor style,,
-custom.data.type.getty.config.parameter.mask.infopop.info.label,Informationen über den Datensatz,Informations about the record
-custom.data.type.getty.config.parameter.mask.infopop.labels.label,Namensformen,Labels
+custom.data.type.getty.config.parameter.mask.infopop.info.label,Informationen über den Datensatz,Informations about the record,,
+custom.data.type.getty.config.parameter.mask.infopop.labels.label,Namensformen,Labels,,
 custom.data.type.getty.config.parameter.schema.add_aat.value.label,Durchsuche,Search,,
 custom.data.type.getty.config.parameter.schema.add_tgn.value.label,Durchsuche,Search,,
 custom.data.type.getty.config.parameter.schema.add_ulan.value.label,Durchsuche,Search,,
@@ -28,3 +28,7 @@ custom.data.type.getty.config.parameter.schema.add_aat.value.checkbox,Art & Arch
 custom.data.type.getty.config.parameter.schema.add_tgn.value.checkbox,Getty Thesaurus of Geographic Names,Getty Thesaurus of Geographic Names,,
 custom.data.type.getty.config.parameter.schema.add_ulan.value.checkbox,Union List of Artist Names,Union List of Artist Names,,
 custom.data.type.getty.url.tooltip,zu **%(name)s** bei Getty Vocabularies springen,jump to **%(name)s** at Getty Vocabularies,,
+custom.data.type.getty.config.parameter.mask.infopop.labels.uri,Identifier,Identifier,,
+custom.data.type.getty.config.parameter.mask.infopop.labels.broader,Übergeordnet,Broader,,
+custom.data.type.getty.config.parameter.mask.infopop.labels.preflabel,Bezeichnung,Preferred label,,
+custom.data.type.getty.config.parameter.mask.infopop.labels.note,Notiz,Note,,

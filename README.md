@@ -12,7 +12,7 @@ The Plugins uses <http://ws.gbv.de/suggest/getty/> for the autocomplete-suggesti
 
 ## configuration
 
-As defined in `CustomDataTypeGetty.config.yml` this datatype can be configured:
+As defined in `manifest.yml` this datatype can be configured:
 
 ### Schema options
 

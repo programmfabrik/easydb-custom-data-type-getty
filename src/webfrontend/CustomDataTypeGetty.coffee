@@ -24,6 +24,15 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
 
     desiredLanguage
 
+  isUriEncoded = (uri) ->
+    # Die URI decodieren
+    decodedUri = decodeURIComponent(uri)
+    # Die decodierte URI erneut codieren
+    reEncodedUri = encodeURIComponent(decodedUri)
+    # Überprüfen, ob die re-codierte URI der ursprünglichen entspricht
+    return reEncodedUri == uri.replace(/%20/g, '+')
+
+    
   #######################################################################
   # get more info about record
   __getAdditionalTooltipInfo: (uri, tooltip, extendedInfo_xhr) ->
@@ -33,14 +42,18 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
       # abort eventually running request
       extendedInfo_xhr.abort()
 
+    if isUriEncoded(uri)
+        uri = decodeURIComponent(uri)
+        
     uriParts = uri.split('/')
     gettyID = uriParts.pop()
     gettyType = uriParts.pop()
 
     uri = 'http://vocab.getty.edu/' + gettyType + '/' + gettyID + '.json'
-
+    
     # start new request
     xurl = location.protocol + '//jsontojsonp.gbv.de/?url=' + uri
+    
     extendedInfo_xhr = new (CUI.XHR)(url: xurl)
     extendedInfo_xhr.start()
     .done((data, status, statusText) ->
@@ -59,7 +72,10 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
         # broader
         if data?.broader
           htmlContent += "<tr><td>" + $$('custom.data.type.getty.config.parameter.mask.infopop.labels.broader') + ":</td>"
-          broaderString = data.broader[0]._label['@value'];
+          if data.broader[0]?._label['@value']
+            broaderString = data.broader[0]._label['@value'];
+          else if data.broader[0]?._label
+            broaderString = data.broader[0]._label;
           broaderString = broaderString.replace('<', '')
           broaderString = broaderString.replace('>', '')
           htmlContent += "<td>" + broaderString + "</td></tr>"
@@ -131,9 +147,12 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
           getty_searchtype.push 'ulan'
         getty_searchtype = getty_searchtype.join(',')
 
+      if getty_searchtype == ''
+          getty_searchtype ='aat,tgn,ulan'
+        
       if getty_searchterm.length == 0
           return
-
+        
       # run autocomplete-search via xhr
       if searchsuggest_xhr.xhr != undefined
           # abort eventually running request
@@ -324,6 +343,8 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
   #######################################################################
   # renders the "result" in original form (outside popover)
   __renderButtonByData: (cdata) ->
+        
+    that = @
 
     # when status is empty or invalid --> message
 
@@ -342,25 +363,31 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
     # http://vocab.getty.edu/aat/300386183 turns http://vocab.getty.edu/page/aat/300386183
     displayUri = cdata.conceptURI.replace('http://vocab.getty.edu', 'http://vocab.getty.edu/page')
 
-    # output Button with Name of picked Entry and URI
-    encodedURI = encodeURIComponent(displayUri)
+    extendedInfo_xhr = { "xhr" : undefined }
+    
+    # output Button with Name of picked entry and URI
     new CUI.HorizontalLayout
-      maximize: true
+      maximize: false
       left:
         content:
           new CUI.Label
             centered: false
+            multiline: true
             text: cdata.conceptName
       center:
         content:
           # output Button with Name of picked Entry and Url to the Source
           new CUI.ButtonHref
             appearance: "link"
-            href: displayUri
+            href: cdata.conceptURI
             target: "_blank"
             tooltip:
               markdown: true
-              text: tt_text
+              placement: 'n'
+              content: (tooltip) ->
+                that.__getAdditionalTooltipInfo(cdata.conceptURI, tooltip, extendedInfo_xhr)
+                new CUI.Label(icon: "spinner", text: "lade Informationen")
+            text: ' '
       right: null
     .DOM
 

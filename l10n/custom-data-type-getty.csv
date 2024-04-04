@@ -32,3 +32,4 @@ custom.data.type.getty.config.parameter.mask.infopop.labels.uri,Identifier,Ident
 custom.data.type.getty.config.parameter.mask.infopop.labels.broader,Übergeordnet,Broader,,
 custom.data.type.getty.config.parameter.mask.infopop.labels.preflabel,Bezeichnung,Preferred label,,
 custom.data.type.getty.config.parameter.mask.infopop.labels.note,Notiz,Note,,
+custom.data.type.getty.config.parameter.schema.start_parent_id.value.label,startParentID,startParentID,,

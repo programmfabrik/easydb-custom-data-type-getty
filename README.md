@@ -17,6 +17,7 @@ As defined in `manifest.yml` this datatype can be configured:
 ### Schema options
 
 * which getty-vocabularys are offered for search (aat, tgn, ulan)
+* starting point for searching within a hierarchical vocabulary. Limits the search to entries that are children of this node, including all of its children and grandchildren.
 
 ### Mask options
 

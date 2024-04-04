@@ -153,13 +153,25 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
       if getty_searchterm.length == 0
           return
         
+      # startParentID
+      startParentID = ''
+      allowedStartParentIDBeginnings = ['tgn:', 'aat:', 'ulan:']
+      if that.getCustomSchemaSettings().start_parent_id?.value
+        startsWithAllowedPrefix = false
+        for prefix in allowedStartParentIDBeginnings when that.getCustomSchemaSettings().start_parent_id.value.startsWith(prefix)
+          startsWithAllowedPrefix = true
+          break
+
+        if startsWithAllowedPrefix
+            startParentID = '&startParentID=' + that.getCustomSchemaSettings().start_parent_id.value
+
       # run autocomplete-search via xhr
       if searchsuggest_xhr.xhr != undefined
           # abort eventually running request
           searchsuggest_xhr.xhr.abort()
 
       # start new request
-      searchsuggest_xhr.xhr = new (CUI.XHR)(url: location.protocol + '//ws.gbv.de/suggest/getty/?searchstring=' + getty_searchterm + '&voc=' + getty_searchtype + '&count=' + getty_countSuggestions)
+      searchsuggest_xhr.xhr = new (CUI.XHR)(url: location.protocol + '//ws.gbv.de/suggest/getty/?searchstring=' + getty_searchterm + '&voc=' + getty_searchtype + '&count=' + getty_countSuggestions + startParentID)
       searchsuggest_xhr.xhr.start().done((data, status, statusText) ->
 
           # init xhr for tooltipcontent
@@ -413,6 +425,11 @@ class CustomDataTypeGetty extends CustomDataTypeWithCommons
     else
       tags.push "✘ ULAN"
 
+    if custom_settings.start_parent_id?.value
+      tags.push "✓ startParentID"
+    else
+      tags.push "✘ startParentID"
+        
     tags
 
 
